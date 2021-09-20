@@ -17,6 +17,23 @@ class Student:
             print(f'Оценка не засчитана. Курс {course} недоступен для студента/лектора.')
             return 'Ошибка'
 
+    def find_average_hw(self):
+        total_grades = 0
+        count_grades = 0
+        for grades in self.grades.values():
+            total_grades += sum(grades)
+            count_grades += len(grades)
+        return total_grades / count_grades
+
+    def __str__(self):
+        res = f'Имя: {self.name}\n' \
+              f'Фамилия: {self.surname}\n' \
+              f'Средняя оценка за домашние задания: {self.find_average_hw()}\n' \
+              f'Курсы в процессе изучения: {" ".join(self.courses_in_progress)}\n' \
+              f'Завершенные курсы: {" ".join(self.finished_courses)}\n' \
+              f'\n'
+        return res
+
 
 class Mentor:
     def __init__(self, name, surname):
@@ -39,8 +56,10 @@ class Lecture(Mentor):
         return total_grades / count_grades
 
     def __str__(self):
-        res = f'Имя: {self.name}\nФамилия: {self.surname}\n' \
-              f'Средняя оценка за лекции: {self.find_average()}'
+        res = f'Имя: {self.name}\n' \
+              f'Фамилия: {self.surname}\n' \
+              f'Средняя оценка за лекции: {self.find_average()}' \
+              f'\n'
         return res
 
 
@@ -52,19 +71,30 @@ class Reviewer(Mentor):
             else:
                 student.grades[course] = [grade]
         else:
+            print(f'Оценка не засчитана. Курс {course} недоступен для студента/проверяющего.')
             return 'Ошибка'
 
     def __str__(self):
-        res = f'Имя: {self.name}\nФамилия: {self.surname}'
+        res = f'Имя: {self.name}\n' \
+              f'Фамилия: {self.surname}' \
+              f'\n'
         return res
 
 cool_reviewer = Reviewer('Some', 'Buddy')
+cool_reviewer.courses_attached += ['Python']
+cool_reviewer.courses_attached += ['C++']
 
-# print(cool_reviewer)
+print(cool_reviewer)
 
 best_student = Student('Ruoy', 'Eman', 'your_gender')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['C++']
+best_student.finished_courses += ['Java']
+cool_reviewer.rate_hw(best_student, 'Python', 10)
+cool_reviewer.rate_hw(best_student, 'Java', 8)
+cool_reviewer.rate_hw(best_student, 'C++', 9)
+
+print(best_student)
 
 cool_lecture = Lecture('Some', 'Buddy')
 cool_lecture.courses_attached += ['Python']
