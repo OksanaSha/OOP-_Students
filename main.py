@@ -115,9 +115,16 @@ best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['C++']
 best_student.finished_courses += ['Java']
 
+other_student = Student('Alex', 'VV', 'your_gender')
+other_student.courses_in_progress += ['C++']
+other_student.finished_courses += ['Python']
+other_student.finished_courses += ['Java']
+
 cool_reviewer.rate_hw(best_student, 'Python', 10)
 # cool_reviewer.rate_hw(best_student, 'Java', 8)
 cool_reviewer.rate_hw(best_student, 'C++', 9)
+cool_reviewer.rate_hw(other_student, 'C++', 5)
+
 
 # print(best_student)
 
@@ -139,5 +146,3 @@ best_student.rate_lecture(other_lecture, 'Python', 10)
 
 print(cool_lecture > other_lecture)
 print(cool_lecture != other_lecture)
-
-
