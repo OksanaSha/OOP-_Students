@@ -34,6 +34,18 @@ class Student:
               f'\n'
         return res
 
+    def __lt__(self, other):
+        if isinstance(self, Student) and isinstance(other, Student):
+            return self.find_average_hw() < other.find_average_hw()
+        else:
+            return 'Ошибка'
+
+    def __eq__(self, other):
+        if isinstance(self, Student) and isinstance(other, Student):
+            return self.find_average_hw() == other.find_average_hw()
+        else:
+            return 'Ошибка'
+
 
 class Mentor:
     def __init__(self, name, surname):
@@ -62,6 +74,18 @@ class Lecture(Mentor):
               f'\n'
         return res
 
+    def __lt__(self, other):
+        if isinstance(self, Lecture) and isinstance(other, Lecture):
+            return self.find_average() < other.find_average()
+        else:
+            return 'Ошибка'
+
+    def __eq__(self, other):
+        if isinstance(self, Lecture) and isinstance(other, Lecture):
+            return self.find_average() == other.find_average()
+        else:
+            return 'Ошибка'
+
 
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
@@ -84,25 +108,36 @@ cool_reviewer = Reviewer('Some', 'Buddy')
 cool_reviewer.courses_attached += ['Python']
 cool_reviewer.courses_attached += ['C++']
 
-print(cool_reviewer)
+# print(cool_reviewer)
 
 best_student = Student('Ruoy', 'Eman', 'your_gender')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['C++']
 best_student.finished_courses += ['Java']
+
 cool_reviewer.rate_hw(best_student, 'Python', 10)
-cool_reviewer.rate_hw(best_student, 'Java', 8)
+# cool_reviewer.rate_hw(best_student, 'Java', 8)
 cool_reviewer.rate_hw(best_student, 'C++', 9)
 
-print(best_student)
+# print(best_student)
 
 cool_lecture = Lecture('Some', 'Buddy')
 cool_lecture.courses_attached += ['Python']
 cool_lecture.courses_attached += ['C++']
 
+other_lecture = Lecture('New', 'Buddy')
+other_lecture.courses_attached += ['Python']
+other_lecture.courses_attached += ['C++']
+
 best_student.rate_lecture(cool_lecture, 'Python', 10)
 best_student.rate_lecture(cool_lecture, 'Python', 10)
 best_student.rate_lecture(cool_lecture, 'Python', 10)
 best_student.rate_lecture(cool_lecture, 'C++', 8)
+best_student.rate_lecture(other_lecture, 'Python', 9)
+best_student.rate_lecture(other_lecture, 'Python', 7)
+best_student.rate_lecture(other_lecture, 'Python', 10)
 
-print(cool_lecture)
+print(cool_lecture > other_lecture)
+print(cool_lecture != other_lecture)
+
+
