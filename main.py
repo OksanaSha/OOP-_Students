@@ -17,13 +17,14 @@ class Student:
             print(f'Оценка не засчитана. Курс {course} недоступен для студента/лектора.')
             return 'Ошибка'
 
+    def find_average_course(self, course):
+        return sum(self.grades[course]) / len(self.grades[course])
+
     def find_average_hw(self):
         total_grades = 0
-        count_grades = 0
-        for grades in self.grades.values():
-            total_grades += sum(grades)
-            count_grades += len(grades)
-        return total_grades / count_grades
+        for course in self.grades.keys():
+            total_grades += self.find_average_course(course)
+        return total_grades / len(self.grades)
 
     def __str__(self):
         res = f'Имя: {self.name}\n' \
@@ -144,5 +145,8 @@ best_student.rate_lecture(other_lecture, 'Python', 9)
 best_student.rate_lecture(other_lecture, 'Python', 7)
 best_student.rate_lecture(other_lecture, 'Python', 10)
 
-print(cool_lecture > other_lecture)
-print(cool_lecture != other_lecture)
+print(best_student.find_average_course('Python'))
+print(best_student.find_average_hw())
+
+# print(cool_lecture > other_lecture)
+# print(cool_lecture != other_lecture)
