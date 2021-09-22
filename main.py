@@ -1,5 +1,8 @@
 class Student:
+    all_students = []
+
     def __init__(self, name, surname, gender):
+        Student.all_students.append(self)
         self.name = name
         self.surname = surname
         self.gender = gender
@@ -11,41 +14,45 @@ class Student:
         self.finished_courses.append(course_name)
 
     def rate_lecture(self, lecture, course, grade):
-        if isinstance(lecture, Lecture) and course in self.courses_in_progress and course in lecture.courses_attached:
-            lecture.grades[course] = lecture.grades.get(course, []) + [grade]
+        if isinstance(lecture, Lecture):
+            if course not in self.courses_in_progress:
+                print(f'Оценка не засчитана. Курс {course} недоступен для студента {self.name}')
+            elif course not in lecture.courses_attached:
+                print(f'Оценка не засчитана. Курс {course} недоступен для лектора {lecture.name}')
+            else:
+                lecture.grades[course] = lecture.grades.get(course, []) + [grade]
         else:
-            print(f'Оценка не засчитана. Курс {course} недоступен для студента/лектора.')
-            return 'Ошибка'
+            print('Ошибка')
+
+
 
     def find_average_course(self, course):
-        return sum(self.grades[course]) / len(self.grades[course])
+        res = sum(self.grades[course]) / len(self.grades[course])
+        if res:
+            return round(res, 2)
+        return 'Ошибка'
 
     def find_average_hw(self):
         total_grades = 0
         for course in self.grades.keys():
             total_grades += self.find_average_course(course)
-        return total_grades / len(self.grades)
+        res = total_grades / len(self.grades)
+        return round(res, 2)
 
     def __str__(self):
         res = f'Имя: {self.name}\n' \
               f'Фамилия: {self.surname}\n' \
               f'Средняя оценка за домашние задания: {self.find_average_hw()}\n' \
-              f'Курсы в процессе изучения: {" ".join(self.courses_in_progress)}\n' \
-              f'Завершенные курсы: {" ".join(self.finished_courses)}\n' \
+              f'Курсы в процессе изучения: {", ".join(self.courses_in_progress)}\n' \
+              f'Завершенные курсы: {", ".join(self.finished_courses)}\n' \
               f'\n'
         return res
 
     def __lt__(self, other):
-        if isinstance(self, Student) and isinstance(other, Student):
-            return self.find_average_hw() < other.find_average_hw()
-        else:
-            return 'Ошибка'
+        return self.find_average_hw() < other.find_average_hw()
 
     def __eq__(self, other):
-        if isinstance(self, Student) and isinstance(other, Student):
-            return self.find_average_hw() == other.find_average_hw()
-        else:
-            return 'Ошибка'
+        return self.find_average_hw() == other.find_average_hw()
 
 
 class Mentor:
@@ -56,48 +63,48 @@ class Mentor:
 
 
 class Lecture(Mentor):
+    all_lectures = []
+
     def __init__(self, name, surname):
+        Lecture.all_lectures.append(self)
         super().__init__(name, surname)
         self.grades = {}
 
-    def find_average(self):
+    def find_average_course(self, course):
+        res = sum(self.grades[course]) / len(self.grades[course])
+        return round(res, 2)
+
+    def find_average_lec(self):
         total_grades = 0
-        count_grades = 0
-        for grades in self.grades.values():
-            total_grades += sum(grades)
-            count_grades += len(grades)
-        return total_grades / count_grades
+        for course in self.grades.keys():
+            total_grades += self.find_average_course(course)
+        res = total_grades / len(self.grades)
+        return round(res, 2)
 
     def __str__(self):
         res = f'Имя: {self.name}\n' \
               f'Фамилия: {self.surname}\n' \
-              f'Средняя оценка за лекции: {self.find_average()}' \
+              f'Средняя оценка за лекции: {self.find_average_lec()}\n' \
               f'\n'
         return res
 
     def __lt__(self, other):
-        if isinstance(self, Lecture) and isinstance(other, Lecture):
-            return self.find_average() < other.find_average()
-        else:
-            return 'Ошибка'
+        return self.find_average_lec() < other.find_average_lec()
 
     def __eq__(self, other):
-        if isinstance(self, Lecture) and isinstance(other, Lecture):
-            return self.find_average() == other.find_average()
-        else:
-            return 'Ошибка'
-
+        return self.find_average_lec() == other.find_average_lec()
 
 class Reviewer(Mentor):
     def rate_hw(self, student, course, grade):
-        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
-            if course in student.grades:
-                student.grades[course] += [grade]
+        if isinstance(student, Student):
+            if course not in self.courses_attached:
+                print(f'Оценка не засчитана. Курс {course} недоступен для проверяющего {self.name}')
+            elif course not in student.courses_in_progress:
+                print(f'Оценка не засчитана. Курс {course} недоступен для студента {student.name}')
             else:
-                student.grades[course] = [grade]
+                student.grades[course] = student.grades.get(course, []) + [grade]
         else:
-            print(f'Оценка не засчитана. Курс {course} недоступен для студента/проверяющего.')
-            return 'Ошибка'
+            print('Ошибка')
 
     def __str__(self):
         res = f'Имя: {self.name}\n' \
@@ -105,48 +112,97 @@ class Reviewer(Mentor):
               f'\n'
         return res
 
-cool_reviewer = Reviewer('Some', 'Buddy')
+
+def find_average_students(all_students, course):
+    '''
+    Find course average hw for all students
+    :param all_students: students list
+    :param course: course name
+    :return: average
+    '''
+    total_grades = 0
+    count_grages = 0
+    for student in all_students:
+        if course in student.courses_in_progress:
+            total_grades += student.find_average_course(course)
+            count_grages += 1
+        if count_grages == 0:
+            return 'Невозможно посчитать средний балл'
+    return total_grades / count_grages
+
+def find_average_lectures(all_lectures, course):
+    '''
+    Find course average lecture for all lectures
+    :param all_lectures: lectures list
+    :param course: course name
+    :return: average
+    '''
+    total_grades = 0
+    count_grages = 0
+    for lecture in all_lectures:
+        if course in lecture.courses_attached:
+            total_grades += lecture.find_average_course(course)
+            count_grages += 1
+        if count_grages == 0:
+            return 'Невозможно посчитать средний балл'
+    return total_grades / count_grages
+
+cool_reviewer = Reviewer('Super', 'Man')
 cool_reviewer.courses_attached += ['Python']
-cool_reviewer.courses_attached += ['C++']
+cool_reviewer.courses_attached += ['C++', 'C#']
 
-# print(cool_reviewer)
+other_reviewer = Reviewer('New', 'Man')
+other_reviewer.courses_attached += ['Java', 'Python']
 
-best_student = Student('Ruoy', 'Eman', 'your_gender')
+best_student = Student('Ruoy', 'Eman', 'm')
 best_student.courses_in_progress += ['Python']
 best_student.courses_in_progress += ['C++']
 best_student.finished_courses += ['Java']
 
-other_student = Student('Alex', 'VV', 'your_gender')
-other_student.courses_in_progress += ['C++']
+other_student = Student('Alex', 'VV', 'm')
+other_student.courses_in_progress += ['C++', 'C#']
 other_student.finished_courses += ['Python']
 other_student.finished_courses += ['Java']
 
-cool_reviewer.rate_hw(best_student, 'Python', 10)
-# cool_reviewer.rate_hw(best_student, 'Java', 8)
-cool_reviewer.rate_hw(best_student, 'C++', 9)
-cool_reviewer.rate_hw(other_student, 'C++', 5)
-
-
-# print(best_student)
-
-cool_lecture = Lecture('Some', 'Buddy')
+cool_lecture = Lecture('James', 'Bond')
 cool_lecture.courses_attached += ['Python']
-cool_lecture.courses_attached += ['C++']
+cool_lecture.courses_attached += ['C++', 'C#']
 
-other_lecture = Lecture('New', 'Buddy')
+other_lecture = Lecture('Mister', 'X')
 other_lecture.courses_attached += ['Python']
-other_lecture.courses_attached += ['C++']
+other_lecture.courses_attached += ['Java']
 
-best_student.rate_lecture(cool_lecture, 'Python', 10)
-best_student.rate_lecture(cool_lecture, 'Python', 10)
+cool_reviewer.rate_hw(best_student, 'Python', 10)
+cool_reviewer.rate_hw(best_student, 'Java', 8)
+cool_reviewer.rate_hw(best_student, 'C++', 9)
+cool_reviewer.rate_hw(other_student, 'C#', 5)
+cool_reviewer.rate_hw(other_student, 'C++', 8)
+
+other_reviewer.rate_hw(best_student, 'Python', 7)
+other_reviewer.rate_hw(best_student, 'Java', 5)
+other_reviewer.rate_hw(best_student, 'Python', 8)
+other_reviewer.rate_hw(other_student, 'C#', 10)
+other_reviewer.rate_hw(other_student, 'C++', 4)
+
 best_student.rate_lecture(cool_lecture, 'Python', 10)
 best_student.rate_lecture(cool_lecture, 'C++', 8)
-best_student.rate_lecture(other_lecture, 'Python', 9)
-best_student.rate_lecture(other_lecture, 'Python', 7)
 best_student.rate_lecture(other_lecture, 'Python', 10)
 
-print(best_student.find_average_course('Python'))
-print(best_student.find_average_hw())
+other_student.rate_lecture(cool_lecture, 'Python', 10)
+other_student.rate_lecture(cool_lecture, 'C#', 6)
+other_student.rate_lecture(cool_lecture, 'C++', 8)
+other_student.rate_lecture(other_lecture, 'Python', 9)
+other_student.rate_lecture(other_lecture, 'C#', 10)
 
-# print(cool_lecture > other_lecture)
-# print(cool_lecture != other_lecture)
+print(other_student.find_average_course('Java'))
+
+# students_average = find_average_students(Student.all_students, course=input('Введите название курса: '))
+# print(f'Средняя оценка за домашние задания у студентов по данному курсу: {students_average}')
+#
+# lectures_average = find_average_lectures(Lecture.all_lectures, course=input('Введите название курса: '))
+# print(f'Средняя оценка за занятия у лекторов данного курса: {lectures_average}')
+# print()
+# print('Список студентов:\n')
+# print(*Student.all_students, sep='')
+# print('Список лекторов:\n')
+# print(*Lecture.all_lectures, sep='')
