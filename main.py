@@ -27,8 +27,8 @@ class Student:
 
 
     def find_average_course(self, course):
-        res = sum(self.grades[course]) / len(self.grades[course])
-        if res:
+        if self.grades.get(course):
+            res = sum(self.grades[course]) / len(self.grades[course])
             return round(res, 2)
         return 'Ошибка'
 
@@ -71,8 +71,10 @@ class Lecture(Mentor):
         self.grades = {}
 
     def find_average_course(self, course):
-        res = sum(self.grades[course]) / len(self.grades[course])
-        return round(res, 2)
+        if self.grades.get(course):
+            res = sum(self.grades[course]) / len(self.grades[course])
+            return round(res, 2)
+        return 'Ошибка'
 
     def find_average_lec(self):
         total_grades = 0
@@ -121,14 +123,25 @@ def find_average_students(all_students, course):
     :return: average
     '''
     total_grades = 0
-    count_grages = 0
+    count_grades = 0
     for student in all_students:
         if course in student.courses_in_progress:
             total_grades += student.find_average_course(course)
-            count_grages += 1
-        if count_grages == 0:
+            count_grades += 1
+        if count_grades == 0:
             return 'Невозможно посчитать средний балл'
-    return total_grades / count_grages
+    return round(total_grades / count_grades, 2)
+    # Вариант 2
+    # Если среднее от среднего не подходит
+    # total_grades = 0
+    # count_grades = 0
+    # for student in all_students:
+    #     if course in student.courses_in_progress:
+    #         total_grades += sum(student.grades[course])
+    #         count_grades += len(student.grades[course])
+    #     if count_grades == 0:
+    #         return 'Невозможно посчитать средний балл'
+    # return total_grades / count_grades
 
 def find_average_lectures(all_lectures, course):
     '''
@@ -138,26 +151,37 @@ def find_average_lectures(all_lectures, course):
     :return: average
     '''
     total_grades = 0
-    count_grages = 0
+    count_grades = 0
     for lecture in all_lectures:
         if course in lecture.courses_attached:
             total_grades += lecture.find_average_course(course)
-            count_grages += 1
-        if count_grages == 0:
+            count_grades += 1
+        if count_grades == 0:
             return 'Невозможно посчитать средний балл'
-    return total_grades / count_grages
+    return round(total_grades / count_grades, 2)
+    # Вариант 2
+    # Если среднее от среднего не подходит
+    # total_grades = 0
+    # count_grages = 0
+    # for lecture in all_lectures:
+    #     if course in lecture.courses_attached:
+    #         total_grades += sum(lecture.grades[course])
+    #         count_grages += len(lecture.grades[course])
+    #     if count_grages == 0:
+    #         return 'Невозможно посчитать средний балл'
+    # return total_grades / count_grades
 
 cool_reviewer = Reviewer('Super', 'Man')
 cool_reviewer.courses_attached += ['Python']
 cool_reviewer.courses_attached += ['C++', 'C#']
 
 other_reviewer = Reviewer('New', 'Man')
-other_reviewer.courses_attached += ['Java', 'Python']
+other_reviewer.courses_attached += ['Java', 'Python', 'C++']
 
 best_student = Student('Ruoy', 'Eman', 'm')
 best_student.courses_in_progress += ['Python']
-best_student.courses_in_progress += ['C++']
-best_student.finished_courses += ['Java']
+best_student.courses_in_progress += ['C++', 'Java']
+best_student.finished_courses += ['C#']
 
 other_student = Student('Alex', 'VV', 'm')
 other_student.courses_in_progress += ['C++', 'C#']
@@ -180,29 +204,39 @@ cool_reviewer.rate_hw(other_student, 'C++', 8)
 
 other_reviewer.rate_hw(best_student, 'Python', 7)
 other_reviewer.rate_hw(best_student, 'Java', 5)
-other_reviewer.rate_hw(best_student, 'Python', 8)
-other_reviewer.rate_hw(other_student, 'C#', 10)
+other_reviewer.rate_hw(best_student, 'C++', 8)
+other_reviewer.rate_hw(other_student, 'Java', 10)
 other_reviewer.rate_hw(other_student, 'C++', 4)
 
 best_student.rate_lecture(cool_lecture, 'Python', 10)
 best_student.rate_lecture(cool_lecture, 'C++', 8)
 best_student.rate_lecture(other_lecture, 'Python', 10)
+best_student.rate_lecture(other_lecture, 'Python', 9.5)
+best_student.rate_lecture(other_lecture, 'Java', 7)
 
-other_student.rate_lecture(cool_lecture, 'Python', 10)
+other_student.rate_lecture(cool_lecture, 'C++', 10)
 other_student.rate_lecture(cool_lecture, 'C#', 6)
 other_student.rate_lecture(cool_lecture, 'C++', 8)
-other_student.rate_lecture(other_lecture, 'Python', 9)
 other_student.rate_lecture(other_lecture, 'C#', 10)
 
 print(other_student.find_average_course('Java'))
+print(best_student.find_average_course('Java'))
+print(best_student.find_average_course('Bla-bla'))
+print()
+
+print(cool_lecture.find_average_lec())
+print(other_lecture.find_average_course('C#'))
+print(other_lecture.find_average_course('Python'))
 
 # students_average = find_average_students(Student.all_students, course=input('Введите название курса: '))
 # print(f'Средняя оценка за домашние задания у студентов по данному курсу: {students_average}')
+# print()
 #
 # lectures_average = find_average_lectures(Lecture.all_lectures, course=input('Введите название курса: '))
 # print(f'Средняя оценка за занятия у лекторов данного курса: {lectures_average}')
 # print()
-# print('Список студентов:\n')
-# print(*Student.all_students, sep='')
-# print('Список лекторов:\n')
-# print(*Lecture.all_lectures, sep='')
+
+print('\nСписок студентов:\n')
+print(*Student.all_students, sep='')
+print('Список лекторов:\n')
+print(*Lecture.all_lectures, sep='')
